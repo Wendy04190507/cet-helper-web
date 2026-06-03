@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { MODULES } from '../constants';
+import { MODULES, SEED_WORD_BANK } from '../constants';
 import { getDefaultExamDate, daysBetween, today } from '../utils/date';
+import { storage, CACHE_KEYS } from '../utils/storage';
 import RadarChart from '../components/RadarChart';
 
 const TOTAL_STEPS = 4;
@@ -15,14 +16,15 @@ const moduleList = [
 ];
 
 export default function Onboarding() {
-  const { isOnboarded, setProfile } = useApp();
+  const { isOnboarded, setProfile, setWordBank } = useApp();
   const navigate = useNavigate();
 
-  // If already onboarded, redirect to home
-  if (isOnboarded) {
-    navigate('/', { replace: true });
-    return null;
-  }
+  // Redirect if already onboarded (useEffect, not during render!)
+  useEffect(() => {
+    if (isOnboarded) {
+      navigate('/', { replace: true });
+    }
+  }, [isOnboarded, navigate]);
 
   const [step, setStep] = useState(0);
   const [examType, setExamType] = useState('');
@@ -73,7 +75,18 @@ export default function Onboarding() {
       createdAt: today(),
     };
 
+    // Save profile to context (triggers isOnboarded = true)
     setProfile(profile);
+    // Also save to localStorage directly for robust persistence
+    storage.set(CACHE_KEYS.USER_PROFILE, profile);
+
+    // Initialize word bank if not exists
+    if (!storage.get(CACHE_KEYS.WORD_BANK)) {
+      storage.set(CACHE_KEYS.WORD_BANK, SEED_WORD_BANK);
+      setWordBank(SEED_WORD_BANK);
+    }
+
+    // Navigate to home — useEffect in Home will load the plan
     navigate('/', { replace: true });
   };
 

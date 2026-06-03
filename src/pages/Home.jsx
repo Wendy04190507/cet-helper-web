@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { today, daysBetween, getDefaultExamDate } from '../utils/date';
@@ -13,6 +13,47 @@ export default function Home() {
   const { userProfile, todayPlan, checkins, addCheckin, setPlan, setProfile, setWordBank, isOnboarded } = useApp();
   const navigate = useNavigate();
   const [isMinimal, setIsMinimal] = useState(false);
+  const [planReady, setPlanReady] = useState(false);
+
+  // Load plan via useEffect (never during render!)
+  useEffect(() => {
+    if (!isOnboarded || !userProfile) return;
+
+    const todayStr = today();
+    // Plan already loaded for today
+    if (todayPlan && todayPlan.date === todayStr) {
+      setPlanReady(true);
+      return;
+    }
+
+    // Load from storage first
+    const savedPlan = storage.get(`${CACHE_KEYS.TODAY_PLAN}`);
+    if (savedPlan && savedPlan.date === todayStr) {
+      // Restore completed state
+      const completedMap = storage.get(`completed_${todayStr}`) || {};
+      savedPlan.tasks = savedPlan.tasks.map(t => ({
+        ...t,
+        icon: t.type === 'vocabulary' ? MODULES.vocabulary.icon
+          : (MODULES[t.type] ? MODULES[t.type].icon : '📋'),
+        isCompleted: !!completedMap[t.id],
+      }));
+      setPlan(savedPlan);
+      setPlanReady(true);
+      return;
+    }
+
+    // Generate new plan
+    const remainingDays = daysBetween(todayStr, userProfile.examDate || getDefaultExamDate());
+    const plan = generateDailyPlan(userProfile, remainingDays);
+    plan.tasks = plan.tasks.map(t => ({
+      ...t,
+      icon: t.type === 'vocabulary' ? MODULES.vocabulary.icon
+        : (MODULES[t.type] ? MODULES[t.type].icon : '📋'),
+      isCompleted: false,
+    }));
+    setPlan(plan);
+    setPlanReady(true);
+  }, [isOnboarded, userProfile, isMinimal]);
 
   // If not onboarded, show welcome
   if (!isOnboarded) {
@@ -39,12 +80,11 @@ export default function Home() {
     );
   }
 
-  // Load plan if not yet loaded
-  if (!todayPlan || todayPlan.date !== today()) {
-    loadTodayPlan(userProfile, setPlan, isMinimal);
+  // Plan still loading
+  if (!planReady || !todayPlan) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
-        <span className="text-text-tertiary text-sm">加载中...</span>
+        <span className="text-text-tertiary text-sm">正在生成今日计划...</span>
       </div>
     );
   }
@@ -87,19 +127,26 @@ export default function Home() {
     const minimal = mode === 'minimal';
     setIsMinimal(minimal);
 
+    const todayStr = today();
+    let plan;
     if (minimal) {
-      const plan = generateMinimalPlan();
-      // Restore completed state
-      const completedMap = storage.get(`completed_${today()}`) || {};
-      plan.tasks = plan.tasks.map(t => ({
-        ...t,
-        icon: t.type === 'vocabulary' ? '📝' : '🎧',
-        isCompleted: !!completedMap[t.id],
-      }));
-      setPlan(plan);
+      plan = generateMinimalPlan();
     } else {
-      loadTodayPlan(userProfile, setPlan, false);
+      const remainingDays = daysBetween(todayStr, userProfile.examDate || getDefaultExamDate());
+      plan = generateDailyPlan(userProfile, remainingDays);
     }
+
+    // Restore completed state
+    const completedMap = storage.get(`completed_${todayStr}`) || {};
+    plan.tasks = plan.tasks.map(t => ({
+      ...t,
+      icon: t.type === 'vocabulary' ? (minimal ? '📝' : MODULES.vocabulary.icon)
+        : (MODULES[t.type] ? MODULES[t.type].icon : (minimal ? '🎧' : '📋')),
+      isCompleted: !!completedMap[t.id],
+    }));
+
+    setPlan(plan);
+    setPlanReady(true);
   };
 
   // Date display
@@ -174,36 +221,6 @@ export default function Home() {
   );
 }
 
-// Helper: Load today's plan
-function loadTodayPlan(profile, setPlan, minimal) {
-  if (minimal) {
-    const plan = generateMinimalPlan();
-    const completedMap = storage.get(`completed_${today()}`) || {};
-    plan.tasks = plan.tasks.map(t => ({
-      ...t,
-      icon: t.type === 'vocabulary' ? '📝' : '🎧',
-      isCompleted: !!completedMap[t.id],
-    }));
-    setPlan(plan);
-    return;
-  }
-
-  const todayStr = today();
-  const remainingDays = daysBetween(todayStr, profile.examDate);
-  const plan = generateDailyPlan(profile, remainingDays);
-
-  // Restore completed state
-  const completedMap = storage.get(`completed_${todayStr}`) || {};
-  plan.tasks = plan.tasks.map(t => ({
-    ...t,
-    icon: t.type === 'vocabulary' ? MODULES.vocabulary.icon
-      : (MODULES[t.type] ? MODULES[t.type].icon : '📋'),
-    isCompleted: !!completedMap[t.id],
-  }));
-
-  setPlan(plan);
-}
-
 // Helper: Quick start without onboarding
 function quickStart(setProfile, setWordBank, navigate) {
   const defaultProfile = {
@@ -224,5 +241,7 @@ function quickStart(setProfile, setWordBank, navigate) {
     setWordBank(SEED_WORD_BANK);
   }
 
-  navigate('/', { replace: true });
+  // Force re-render to load plan
+  window.location.hash = '#/';
+  window.location.reload();
 }
