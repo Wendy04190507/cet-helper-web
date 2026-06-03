@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f8f8f8;
+  --color-surface: #ffffff;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #8e8e93;
+  --color-text-tertiary: #c7c7cc;
+  --color-accent: #1a1a1a;
+  --color-accent-soft: #f0f0f0;
+  --color-success: #34c759;
+  --color-warning: #ff9f0a;
+  --color-danger: #ff3b30;
+  --color-divider: #e5e5ea;
+}
+
+body {
+  margin: 0;
+  background: #f8f8f8;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App shell — mobile-first, centered on desktop */
+#root {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  position: relative;
+}
+
+/* Utility: monospace for numbers / timer */
+.font-mono {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+}
