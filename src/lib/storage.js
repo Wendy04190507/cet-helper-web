@@ -10,8 +10,13 @@ export const CACHE_KEYS = {
   CHECK_INS:     'check_ins',
   TASK_RECORDS:  'task_records',
   SETTINGS:      'settings',
-  EXERCISES:     'exercises',
-  ERROR_BOOK:    'error_book',
+  EXERCISES:       'exercises',
+  ERROR_BOOK:      'error_book',
+  STUDY_LOGS:      'study_logs',
+  POMODORO_RECORDS:'pomodoro_records',
+  WRITING_ESSAYS:  'writing_essays',
+  TRANSLATION_RECORDS: 'translation_records',
+  FEYNMAN_RECORDS: 'feynman_records',
 };
 
 export const storage = {
