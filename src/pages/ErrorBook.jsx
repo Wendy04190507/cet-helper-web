@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { storage } from '../utils/storage';
+import { storage, CACHE_KEYS } from '../utils/storage';
 
 export default function ErrorBook() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState([]);
 
   useEffect(() => {
-    const data = storage.get('cet_error_book') || [];
+    const data = storage.get(CACHE_KEYS.ERROR_BOOK) || [];
     // Sort: most recently added first
     data.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     setErrors(data);
   }, []);
 
   const moduleLabel = { listening: '听力', reading: '阅读', writing: '写作', translation: '翻译' };
+  const moduleIcon = { listening: '🎧', reading: '📖', writing: '✍️', translation: '🔄' };
 
   if (errors.length === 0) {
     return (
@@ -34,7 +35,9 @@ export default function ErrorBook() {
         {errors.map((error, idx) => (
           <div key={idx} className="card card-hover bg-white rounded-2xl p-5 border border-divider/50">
             <div className="flex items-start justify-between mb-2">
-              <span className="text-xs font-medium text-text-secondary">{moduleLabel[error.module] || error.module}</span>
+              <span className="text-xs font-medium text-text-secondary">
+                {moduleIcon[error.module] || '📋'} {moduleLabel[error.module] || error.module}
+              </span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-[#E8B86D]/10 text-[#E8B86D]">
                 复习 {error.reviewCount || 0} 次
               </span>

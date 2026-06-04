@@ -3,15 +3,20 @@
 const PREFIX = 'cet_';
 
 export const CACHE_KEYS = {
-  USER_PROFILE:  'user_profile',
-  TODAY_PLAN:    'today_plan',
-  WORD_BANK:     'word_bank',
-  USER_WORDS:    'user_words',
-  CHECK_INS:     'check_ins',
-  TASK_RECORDS:  'task_records',
-  SETTINGS:      'settings',
-  EXERCISES:     'exercises',
-  ERROR_BOOK:    'error_book',
+  USER_PROFILE:         'user_profile',
+  TODAY_PLAN:           'today_plan',
+  WORD_BANK:            'word_bank',
+  USER_WORDS:           'user_words',
+  CHECK_INS:            'check_ins',
+  TASK_RECORDS:         'task_records',
+  SETTINGS:             'settings',
+  EXERCISES:            'exercises',
+  ERROR_BOOK:           'error_book',
+  STUDY_LOGS:           'study_logs',
+  POMODORO_RECORDS:     'pomodoro_records',
+  WRITING_ESSAYS:       'writing_essays',
+  TRANSLATION_RECORDS:  'translation_records',
+  FEYNMAN_RECORDS:      'feynman_records',
 };
 
 export const storage = {

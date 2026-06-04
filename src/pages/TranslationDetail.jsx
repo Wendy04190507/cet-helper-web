@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SEED_EXERCISES } from '../data/exercises';
-import { storage } from '../utils/storage';
+import { storage, CACHE_KEYS } from '../utils/storage';
 import { deepseekChatJSON } from '../lib/deepseek';
 import { translationCorrectionPrompt, feynmanAssessmentPrompt } from '../lib/prompts';
 
@@ -40,6 +40,15 @@ export default function TranslationDetail() {
         { temperature: 0.3, maxTokens: 4096 }
       );
       setFeedback(result);
+      // Save errors to error book
+      const grammarErrs = (result.grammar && result.grammar.errors) || [];
+      const vocabErrs = (result.vocabulary && result.vocabulary.suggestions) || [];
+      if (grammarErrs.length > 0 || vocabErrs.length > 0) {
+        let errors = storage.get(CACHE_KEYS.ERROR_BOOK) || [];
+        grammarErrs.forEach(e => { errors.push({ module: 'translation', questionTitle: item.title, userAnswer: e.original, correctAnswer: e.correction, reason: e.rule || '', reviewCount: 0, createdAt: new Date().toISOString() }); });
+        vocabErrs.forEach(e => { errors.push({ module: 'translation', questionTitle: item.title + ' (词汇)', userAnswer: e.original, correctAnswer: e.better || '', reason: '', reviewCount: 0, createdAt: new Date().toISOString() }); });
+        storage.set(CACHE_KEYS.ERROR_BOOK, errors);
+      }
       setPhase('feedback');
     } catch (e) { setError('AI批改失败: ' + e.message); }
     setLoading(false);

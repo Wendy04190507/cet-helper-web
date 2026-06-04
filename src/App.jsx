@@ -7,6 +7,7 @@ import WordReview from './pages/WordReview';
 import Pomodoro from './pages/Pomodoro';
 import WeeklyReport from './pages/WeeklyReport';
 import Settings from './pages/Settings';
+import LearningHub from './pages/LearningHub';
 import Listening from './pages/Listening';
 import ListeningDetail from './pages/ListeningDetail';
 import Reading from './pages/Reading';
@@ -26,6 +27,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/learn" element={<LearningHub />} />
             <Route path="/word-review" element={<WordReview />} />
             <Route path="/pomodoro" element={<Pomodoro />} />
             <Route path="/weekly-report" element={<WeeklyReport />} />

@@ -2,15 +2,15 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 const tabs = [
   { to: '/', icon: '📋', label: '今日' },
-  { to: '/word-review', icon: '📝', label: '单词' },
-  { to: '/listening', icon: '🎧', label: '听力' },
-  { to: '/reading', icon: '📖', label: '阅读' },
+  { to: '/learn', icon: '🎯', label: '练习' },
+  { to: '/pomodoro', icon: '⏱️', label: '专注' },
+  { to: '/weekly-report', icon: '📊', label: '报告' },
   { to: '/settings', icon: '👤', label: '我' },
 ];
 
 export default function BottomNav() {
   const location = useLocation();
-  const hiddenPaths = ['/onboarding', '/pomodoro'];
+  const hiddenPaths = ['/onboarding'];
   const isHidden = hiddenPaths.some(p => location.pathname === p);
 
   if (isHidden) return null;

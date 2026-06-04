@@ -1,14 +1,27 @@
-const DEEPSEEK_API_KEY = 'sk-7be0abbaa3ad41a3a3440fddb54933fb';
-const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
+// DeepSeek API client — uses Vite env var VITE_DEEPSEEK_API_KEY
+// The API key is bundled into the frontend at build time.
+// For production, proxy requests through your own backend instead.
+
+const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
+const BASE_URL = 'https://api.deepseek.com';
+
+/** Check if API key is configured */
+export function isApiReady() {
+  return !!API_KEY && !API_KEY.includes('your-key-here');
+}
 
 export async function deepseekChatJSON(messages, options = {}) {
+  if (!isApiReady()) {
+    throw new Error('请先配置 DeepSeek API Key：复制 .env.example 为 .env，填入你的 key。');
+  }
+
   const { temperature = 0.7, maxTokens = 4096 } = options;
 
-  const response = await fetch(`${DEEPSEEK_BASE_URL}/v1/chat/completions`, {
+  const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+      'Authorization': `Bearer ${API_KEY}`,
     },
     body: JSON.stringify({
       model: 'deepseek-chat',

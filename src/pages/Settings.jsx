@@ -139,6 +139,20 @@ export default function Settings() {
           <span className="text-[15px]">重新评估</span>
           <span className="text-text-tertiary">→</span>
         </div>
+        <div
+          className="flex justify-between items-center p-4 bg-surface rounded-xl mt-0.5 cursor-pointer hover:bg-accent-soft transition-colors"
+          onClick={() => navigate('/report')}
+        >
+          <span className="text-[15px]">学习报告</span>
+          <span className="text-text-tertiary">→</span>
+        </div>
+        <div
+          className="flex justify-between items-center p-4 bg-surface rounded-xl mt-0.5 cursor-pointer hover:bg-accent-soft transition-colors"
+          onClick={() => navigate('/error-book')}
+        >
+          <span className="text-[15px]">错题本</span>
+          <span className="text-text-tertiary">→</span>
+        </div>
         <div className="flex justify-between items-center p-4 bg-surface rounded-xl mt-0.5">
           <span className="text-[15px]">字体大小</span>
           <select
